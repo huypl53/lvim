@@ -170,11 +170,15 @@ lvim.plugins = {
     "nvim-treesitter/nvim-treesitter-textobjects",
     after="nvim-treesitter"
   },
+  -- {
+  --   "glepnir/lspsaga.nvim",
+  --   config = function()
+  --     require("lspsaga").init_lsp_saga()
+  --   end
+  -- },
   {
-    "glepnir/lspsaga.nvim",
-    config = function()
-      require("lspsaga").init_lsp_saga()
-    end
+    "kosayoda/nvim-lightbulb",
+    -- ignore = {"null-ls"}
   },
   {
     "onsails/lspkind-nvim",
@@ -386,13 +390,13 @@ lvim.plugins = {
   },
   {
     'liuchengxu/vista.vim',
-    config = function()
-      map('n', '<leader>i', "<cmd>Vista!!<CR>", opt)
-    end
+    -- config = function()
+    --   map('n', '<leader>i', "<cmd>Vista!!<CR>", opt)
+    -- end
   },
   {
     'simrat39/symbols-outline.nvim',
-    cmd = "SymbolsOutline",
+    -- cmd = "SymbolsOutline",
     -- config = function()
     --   vim.api.nvim_set_keymap("n", "<leader>i", "<cmd>SymbolsOutline<CR>", {})
     -- end
@@ -603,7 +607,8 @@ lvim.plugins = {
     ft = {"fugitive"}
   }
 }
-
+-- vim.api.nvim_command('highlight LightBulbFloatWin ctermfg= ctermbg= guifg= guibg=')
+-- vim.api.nvim_command('highlight LightBulbVirtualText ctermfg= ctermbg= guifg= guibg=')
 ------------
 --MAPPINGS--
 ------------
@@ -626,12 +631,39 @@ lvim.builtin.which_key.mappings["ss"] = {
   v = {"lua require('spectre').open_visual()<CR>", "Search visual"}
 }
 
+lvim.builtin.which_key.mappings["b"] = {
+  name = "+Buffer",
+  l = {"<Cmd>Telescope buffers<CR>", "Telescope show buffers"},
+  ck = {"<Cmd>BufferCloseBuffersRight<CR>", "Close buffers right"},
+  cj = {"<Cmd>BufferCloseBuffersLeft<CR>", "Close buffers left"},
+  cc = {"<Cmd>BufferClose!<CR>", "Close current buffer"},
+  ec = {"<Cmd>BufferCloseAllButCurrent<CR>", "Buffers close all but current"},
+  ep = {"<Cmd>BufferCloseAllButPinned<CR>", "Buffers close all but current"},
+  
+  p = {"<Cmd>BufferPick<CR>", "Buffer pick"},
+  ol = {"<Cmd>BufferOrderByLanguage<CR>", "Buffer order by languge"},
+  od = {"<Cmd>BufferOrderByDirectory<CR>", "Buffer order by directory"},
+
+  w = {"<Cmd>BufferWipeout<CR>", "Buffer wipe out"}
+}
+
+lvim.builtin.which_key.mappings["f"] = {
+  f = {"<Cmd>Telescope find_files<CR>", "Find files"},
+  g = {"<Cmd>Telescope live_grep<CR>", "Live grep"},
+}
+
+lvim.builtin.which_key.mappings["s"] = {
+  name = "+Settings",
+  cc = {"<Cmd>Telescope colorscheme<CR>", "Select colorscheme"},
+  cp = {"<Cmd>lua require('telescope.builtin.internal').colorscheme({enable_preview = true})<CR>", "Select colorscheme preview"}
+}
+
 
 lvim.keys.normal_mode = {
-  ["<leader>lhf"] = "<cmd>lua require'lspsaga.provider'.lsp_finder()<CR>",
-  ["<leader>lha"] = "<cmd>lua require('lspsaga.codeaction').code_action()<CR>",
-  ["<leader>lhd"] = "<cmd>lua require'lspsaga.provider'.preview_definition()<CR>",
-  ["<leader>lhr"] = "<cmd>lua require'lspsaga.rename'.rename()<CR>",
+  -- ["<leader>lhf"] = "<cmd>lua require'lspsaga.provider'.lsp_finder()<CR>",
+  -- ["<leader>lha"] = "<cmd>lua require('lspsaga.codeaction').code_action()<CR>",
+  -- ["<leader>lhd"] = "<cmd>lua require'lspsaga.provider'.preview_definition()<CR>",
+  -- ["<leader>lhr"] = "<cmd>lua require'lspsaga.rename'.rename()<CR>",
 
   ["<C-j>"] = "<cmd>wincmd j<CR>",
   ["<C-k>"] = "<cmd>wincmd k<CR>",
@@ -652,25 +684,30 @@ lvim.keys.normal_mode = {
   ["<leader>8"] = ":BufferGoto 8<CR>",
   ["<leader>9"] = ":BufferLast<CR>",
 
-  ['<C-p>'] = ':BufferPick<CR>',
-  ['<A-c>'] = ':BufferClose<CR>',
+  ['<leader>bp'] = ':BufferPick<CR>',
+  -- ['<A-c>'] = ':BufferClose<CR>',
   ['<Space>bb'] = ':BufferOrderByBufferNumber<CR>',
   ['<Space>bd'] = ':BufferOrderByDirectory<CR>',
   ['<Space>bl'] = ':BufferOrderByLanguage<CR>',
 
   ['<leader>ml'] = ':MarksListBuf<CR>',
+  ['<leader>gg'] = "<Cmd>lua require('lvim.core.terminal')._exec_toggle('lazygit')<CR>",
+  ['<leader>ot'] = '<Cmd>execute v:count . "ToggleTerm"<CR>',
+  ['<leader>il'] =  "<cmd>Vista!!<CR>",
+  ['<leader>id'] =  "<cmd>SymbolsOutline<CR>",
+
 }
 
-vim.api.nvim_set_keymap("n", "<leader>m,", "<Plug>(Marks-setnext)", {noremap=false})
-vim.api.nvim_set_keymap("n", "<leader>m;", "<Plug>(Marks-toggle)", {noremap=false})
-vim.api.nvim_set_keymap("n", "<leader>dm<space>", "<Plug>(Marks-deletebuf)", {noremap=false})
-vim.api.nvim_set_keymap("n", "<leader>m:", "<Plug>(Marks-preview)", {noremap=false})
-vim.api.nvim_set_keymap("n", "<leader>m]", "<Plug>(Marks-next)", {noremap=false})
-vim.api.nvim_set_keymap("n", "<leader>m[", "<Plug>(Marks-prev)", {noremap=false})
-vim.api.nvim_set_keymap("n", "<leader>m[0-9]", "<Plug>(Marks-set-bookmark[0-9])", {noremap=false})
-vim.api.nvim_set_keymap("n", "<leader>dm[0-9]", "<Plug>(Marks-delete-bookmark[0-9])", {noremap=false})
-vim.api.nvim_set_keymap("n", "<leader>m}", "<Plug>(Marks-next-bookmark[0-9])", {noremap=false})
-vim.api.nvim_set_keymap("n", "<leader>m{", "<Plug>(Marks-pre-bookmark[0-9])", {noremap=false})
+map("n", "<leader>m,", "<Plug>(Marks-setnext)", {noremap=false})
+map("n", "<leader>m;", "<Plug>(Marks-toggle)", {noremap=false})
+map("n", "<leader>dm<space>", "<Plug>(Marks-deletebuf)", {noremap=false})
+map("n", "<leader>m:", "<Plug>(Marks-preview)", {noremap=false})
+map("n", "<leader>m]", "<Plug>(Marks-next)", {noremap=false})
+map("n", "<leader>m[", "<Plug>(Marks-prev)", {noremap=false})
+map("n", "<leader>m[0-9]", "<Plug>(Marks-set-bookmark[0-9])", {noremap=false})
+map("n", "<leader>dm[0-9]", "<Plug>(Marks-delete-bookmark[0-9])", {noremap=false})
+map("n", "<leader>m}", "<Plug>(Marks-next-bookmark[0-9])", {noremap=false})
+map("n", "<leader>m{", "<Plug>(Marks-pre-bookmark[0-9])", {noremap=false})
 
 vim.g.splitjoin_join_mapping = ''
 vim.g.splitjoin_split_mapping = ''
@@ -685,7 +722,7 @@ lvim.builtin.which_key.mappings["sk"] = {
 }
 
 lvim.keys.visual_mode = {
-  ["<leader>lha"] = "<cmd>lua require('lspsaga.codeaction').range_code_action()<CR>",
+  -- ["<leader>lha"] = "<cmd>lua require('lspsaga.codeaction').range_code_action()<CR>",
 }
 
 
@@ -699,8 +736,8 @@ lvim.keys.insert_mode = {
 }
 
 lvim.keys.normal_mode["<Esc>"] = ":nohlsearch<cr>"
--- vim.api.nvim_set_keymap("n", "j", "<Plug>(accelerated_jk_gj)", {})
--- vim.api.nvim_set_keymap("n", "k", "<Plug>(accelerated_jk_gk)", {})
+vim.api.nvim_set_keymap("n", "j", "<Plug>(accelerated_jk_gj)", {})
+vim.api.nvim_set_keymap("n", "k", "<Plug>(accelerated_jk_gk)", {})
 
 
 vim.g.lazyredraw = true        --improve scrolling performance when navigating through large results
