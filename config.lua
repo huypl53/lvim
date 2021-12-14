@@ -29,8 +29,8 @@ function split (inputstr, sep)
 end
 
 -- general
+lvim.log.level = "warn"
 lvim.format_on_save = true
-lvim.lint_on_save = true
 lvim.colorscheme = "onedarker"
 
 -- keymappings [view all the defaults by pressing <leader>Lk]
@@ -39,24 +39,40 @@ lvim.localleader = ";"
 -- add your own keymapping
 lvim.keys.normal_mode["<C-s>"] = ":w<cr>"
 -- unmap a default keymapping
--- lvim.keys.normal_mode["<C-Up>"] = ""
+-- lvim.keys.normal_mode["<C-Up>"] = false
 -- edit a default keymapping
 -- lvim.keys.normal_mode["<C-q>"] = ":q<cr>"
 
 -- Change Telescope navigation to use j and k for navigation and n and p for history in both input and normal mode.
--- lvim.builtin.telescope.on_config_done = function()
---   local actions = require "telescope.actions"
+-- we use protected-mode (pcall) just in case the plugin wasn't loaded yet.
+-- local _, actions = pcall(require, "telescope.actions")
+-- lvim.builtin.telescope.defaults.mappings = {
 --   -- for input mode
---   lvim.builtin.telescope.defaults.mappings.i["<C-j>"] = actions.move_selection_next
---   lvim.builtin.telescope.defaults.mappings.i["<C-k>"] = actions.move_selection_previous
---   lvim.builtin.telescope.defaults.mappings.i["<C-n>"] = actions.cycle_history_next
---   lvim.builtin.telescope.defaults.mappings.i["<C-p>"] = actions.cycle_history_prev
+--   i = {
+--     ["<C-j>"] = actions.move_selection_next,
+--     ["<C-k>"] = actions.move_selection_previous,
+--     ["<C-n>"] = actions.cycle_history_next,
+--     ["<C-p>"] = actions.cycle_history_prev,
+--   },
 --   -- for normal mode
---   lvim.builtin.telescope.defaults.mappings.n["<C-j>"] = actions.move_selection_next
---   lvim.builtin.telescope.defaults.mappings.n["<C-k>"] = actions.move_selection_previous
--- end
+--   n = {
+--     ["<C-j>"] = actions.move_selection_next,
+--     ["<C-k>"] = actions.move_selection_previous,
+--   },
+-- }
 
--- general settings--
+-- Use which-key to add extra bindings with the leader-key prefix
+-- lvim.builtin.which_key.mappings["P"] = { "<cmd>Telescope projects<CR>", "Projects" }
+-- lvim.builtin.which_key.mappings["t"] = {
+--   name = "+Trouble",
+--   r = { "<cmd>Trouble lsp_references<cr>", "References" },
+--   f = { "<cmd>Trouble lsp_definitions<cr>", "Definitions" },
+--   d = { "<cmd>Trouble lsp_document_diagnostics<cr>", "Diagnostics" },
+--   q = { "<cmd>Trouble quickfix<cr>", "QuickFix" },
+--   l = { "<cmd>Trouble loclist<cr>", "LocationList" },
+--   w = { "<cmd>Trouble lsp_workspace_diagnostics<cr>", "Diagnostics" },
+-- }
+
 
 cmd "hi CursorColumn guibg=#443960 gui=bold"
 vim.opt.relativenumber = false
@@ -65,15 +81,58 @@ vim.opt.ignorecase = false
 -- After changing plugin config exit and reopen LunarVim, Run :PackerInstall :PackerCompile
 lvim.builtin.dashboard.active = false
 lvim.builtin.terminal.active = true
-lvim.builtin.nvimtree.side = "left"
 lvim.builtin.nvimtree.show_icons.git = 0
+-- lvim.builtin.project.active = false
+lvim.builtin.project.manual_mode = true
 
 -- if you don't want all the parsers change this to a table of the ones you want
-lvim.builtin.treesitter.ensure_installed = {}
+lvim.builtin.treesitter.ensure_installed = {
+  "bash",
+  "c",
+  "javascript",
+  "json",
+  "lua",
+  "python",
+  "typescript",
+  "css",
+  "rust",
+  "java",
+  "yaml",
+}
+
 lvim.builtin.treesitter.ignore_install = { "haskell" }
 lvim.builtin.treesitter.highlight.enabled = true
 
+-- Beautify
+local components = require("lvim.core.lualine.components")
+components.filename.path = 1
+lvim.builtin.lualine.sections.lualine_b = {
+  components.branch,
+  components.filename,
+}
+
 -- generic LSP settings
+
+-- ---@usage disable automatic installation of servers
+-- lvim.lsp.automatic_servers_installation = false
+
+-- ---@usage Select which servers should be configured manually. Requires `:LvimCacheRest` to take effect.
+-- See the full default list `:lua print(vim.inspect(lvim.lsp.override))`
+-- vim.list_extend(lvim.lsp.override, { "pyright" })
+
+-- ---@usage setup a server -- see: https://www.lunarvim.org/languages/#overriding-the-default-configuration
+-- local opts = {} -- check the lspconfig documentation for a list of all possible options
+-- require("lvim.lsp.manager").setup("pylsp", opts)
+
+-- you can set a custom on_attach function that will be used for all the language servers
+-- See <https://github.com/neovim/nvim-lspconfig#keybindings-and-completion>
+-- lvim.lsp.on_attach_callback = function(client, bufnr)
+--   local function buf_set_option(...)
+--     vim.api.nvim_buf_set_option(bufnr, ...)
+--   end
+--   --Enable completion triggered by <c-x><c-o>
+--   buf_set_option("omnifunc", "v:lua.vim.lsp.omnifunc")
+-- end
 -- you can set a custom on_attach function that will be used for all the language servers
 -- See <https://github.com/neovim/nvim-lspconfig#keybindings-and-completion>
 lvim.lsp.on_attach_callback = function(client, bufnr)
@@ -126,26 +185,42 @@ end
 --   end
 -- end
 
--- set a formatter if you want to override the default lsp one (if it exists)
--- lvim.lang.python.formatters = {
+-- -- set a formatter, this will override the language server formatting capabilities (if it exists)
+-- local formatters = require "lvim.lsp.null-ls.formatters"
+-- formatters.setup {
+--   { exe = "black", filetypes = { "python" } },
+--   { exe = "isort", filetypes = { "python" } },
 --   {
---     exe = "black",
---     args = {}
---   }
+--     exe = "prettier",
+--     ---@usage arguments to pass to the formatter
+--     -- these cannot contain whitespaces, options such as `--line-width 80` become either `{'--line-width', '80'}` or `{'--line-width=80'}`
+--     args = { "--print-with", "100" },
+--     ---@usage specify which filetypes to enable. By default a providers will attach to all the filetypes it supports.
+--     filetypes = { "typescript", "typescriptreact" },
+--   },
 -- }
--- set an additional linter
--- lvim.lang.python.linters = {
+
+-- -- set additional linters
+-- local linters = require "lvim.lsp.null-ls.linters"
+-- linters.setup {
+--   { exe = "flake8", filetypes = { "python" } },
 --   {
---     exe = "flake8",
---     args = {}
---   }
+--     exe = "shellcheck",
+--     ---@usage arguments to pass to the formatter
+--     -- these cannot contain whitespaces, options such as `--line-width 80` become either `{'--line-width', '80'}` or `{'--line-width=80'}`
+--     args = { "--severity", "warning" },
+--   },
+--   {
+--     exe = "codespell",
+--     ---@usage specify which filetypes to enable. By default a providers will attach to all the filetypes it supports.
+--     filetypes = { "javascript", "python" },
+--   },
 -- }
 
 ----------------------------
 -- Disable default plugins--
 ----------------------------
 lvim.keys.normal_mode["<leader>h"] = nil
--- lvim.builtin.which_key.mappings["<leader>"]
 -- Additional Plugins
 lvim.plugins = {
   ----------
@@ -160,7 +235,7 @@ lvim.plugins = {
       vim.g.rnvimr_bw_enable = 1
     end,
   },
-  {"folke/tokyonight.nvim"},
+  -- {"folke/tokyonight.nvim"},
   {
     "ray-x/lsp_signature.nvim",
     config = function() require"lsp_signature".on_attach() end,
@@ -186,7 +261,6 @@ lvim.plugins = {
     config = function()
       require("lspkind").init()
     end
-
   },
   {
     "alvan/vim-closetag"
@@ -313,12 +387,6 @@ lvim.plugins = {
     requires = "kyazdani42/nvim-web-devicons",
     config = function()
       require("trouble").setup {
-        --[[ {
-        action_keys ={
-        close="q"
-        },
-        auto_open=true,
-        } ]]
       }
     end
 
@@ -337,36 +405,18 @@ lvim.plugins = {
     config = function()
       require"surround".setup {mappings_style = "sandwich"}
     end
-
   },
   {
     "chentau/marks.nvim",
     event = "BufEnter",
     config = function()
       require'marks'.setup {
-        -- whether to map keybinds or not. default true
         default_mappings = true,
-        -- which builtin marks to show. default {}
         builtin_marks = { ".", "<", ">", "^" },
-        -- whether movements cycle back to the beginning/end of buffer. default true
         cyclic = true,
-        -- whether the shada file is updated after modifying uppercase marks. default false
         force_write_shada = false,
-        -- how often (in ms) to redraw signs/recompute mark positions.
-        -- higher values will have better performance but may cause visual lag,
-        -- while lower values may cause performance penalties. default 150.
         refresh_interval = 150,
-        -- refresh_interval = 250,
-        -- sign priorities for each type of mark - builtin marks, uppercase marks, lowercase
-        -- marks, and bookmarks.
-        -- can be either a table with all/none of the keys, or a single number, in which case
-        -- the priority applies to all marks.
-        -- default 10.
         sign_priority = { lower=10, upper=15, builtin=8, bookmark=20 },
-        -- marks.nvim allows you to configure up to 10 bookmark groups, each with its own
-        -- sign/virttext. Bookmarks can be used to group together positions and quickly move
-        -- across multiple buffers. default sign is '!@#$%^&*()' (from 0 to 9), and
-        -- default virt_text is "".
         bookmark_0 = {
           sign = "⚑",
           virt_text = "hello world"
@@ -378,30 +428,25 @@ lvim.plugins = {
       }
     end
   },
-  -- {
-  --   'brooth/far.vim'
-  -- },
-  {
-    "windwp/nvim-spectre",
-    event = "BufRead",
-    config = function()
-      require("spectre").setup()
-    end,
-  },
-  {
-    'liuchengxu/vista.vim',
-    -- config = function()
-    --   map('n', '<leader>i', "<cmd>Vista!!<CR>", opt)
-    -- end
+-- {
+--   'brooth/far.vim'
+-- },
+{
+  "windwp/nvim-spectre",
+  event = "BufRead",
+  config = function()
+    require("spectre").setup()
+  end,
+},
+{
+  'liuchengxu/vista.vim',
   },
   {
     'simrat39/symbols-outline.nvim',
-    -- cmd = "SymbolsOutline",
-    -- config = function()
-    --   vim.api.nvim_set_keymap("n", "<leader>i", "<cmd>SymbolsOutline<CR>", {})
-    -- end
   },
-  {"AndrewRadev/splitjoin.vim"},
+  {
+    "AndrewRadev/splitjoin.vim"
+  },
   {
     "jpalardy/vim-slime",
     ft = {'python', 'javascript'}
@@ -417,7 +462,6 @@ lvim.plugins = {
     config=function()
       vim.g.doge_doc_standard_python = 'numpy'
     end
-
   },
   {
     "iamcco/markdown-preview.nvim",
@@ -533,20 +577,11 @@ lvim.plugins = {
       map("n", "<leader>zm", ":TZMinimalist<CR>", opt)
       map("n", "<leader>zf", ":TZFocus<CR>", opt)
     end,
-
   },
 
   --------------
   --BEAUTIFING--
   --------------
-  {
-    "glepnir/galaxyline.nvim",
-    after = "nvim-web-devicons",
-    config = function()
-      require "galaxyline"
-    end,
-
-  },
 
   ----------------------
   --ACCELERATED-CODING--
@@ -559,12 +594,6 @@ lvim.plugins = {
   },
   {
     "rhysd/clever-f.vim"
-  },
-  {
-    "tzachar/compe-tabnine",
-    run = "./install.sh",
-    requires = "hrsh7th/nvim-compe",
-    event = "InsertEnter",
   },
   {
     "rmagatti/goto-preview",
@@ -614,6 +643,9 @@ lvim.plugins = {
 ------------
 -- Use which-key to add extra bindings with the leader-key prefix
 -- lvim.builtin.which_key.mappings["P"] = { "<cmd>Telescope projects<CR>", "Projects" }
+
+----
+
 lvim.builtin.which_key.mappings["t"] = {
   name = "+Trouble",
   r = { "<cmd>Trouble lsp_references<cr>", "References" },
@@ -638,12 +670,12 @@ lvim.builtin.which_key.mappings["b"] = {
   cj = {"<Cmd>BufferCloseBuffersLeft<CR>", "Close buffers left"},
   cc = {"<Cmd>BufferClose!<CR>", "Close current buffer"},
   ec = {"<Cmd>BufferCloseAllButCurrent<CR>", "Buffers close all but current"},
-  ep = {"<Cmd>BufferCloseAllButPinned<CR>", "Buffers close all but current"},
-  
+  ep = {"<Cmd>BufferCloseAllButPinned<CR>", "Buffers close all but pinned"},
   p = {"<Cmd>BufferPick<CR>", "Buffer pick"},
   ol = {"<Cmd>BufferOrderByLanguage<CR>", "Buffer order by languge"},
   od = {"<Cmd>BufferOrderByDirectory<CR>", "Buffer order by directory"},
-
+  on = {"<Cmd>BufferOrderByBufferNumber<CR>", "Buffer orfer by number"},
+  bb = {"<Cmd>BufferPin<CR>", "Buffer pin"},
   w = {"<Cmd>BufferWipeout<CR>", "Buffer wipe out"}
 }
 
@@ -658,10 +690,16 @@ lvim.builtin.which_key.mappings["s"] = {
   cp = {"<Cmd>lua require('telescope.builtin.internal').colorscheme({enable_preview = true})<CR>", "Select colorscheme preview"}
 }
 
+lvim.keys.normal_mode["<leader>pd"] = false
+lvim.keys.normal_mode["<leader>pi"] = false
+lvim.keys.normal_mode["<leader>pc"] = false
 
 lvim.keys.normal_mode = {
+      ["<leader>pd"] = "<cmd>lua require('goto-preview').goto_preview_definition()<CR>",
+      ["<leader>pi"] = "<cmd>lua require('goto-preview').goto_preview_implementation()<CR>",
+      ["<leader>pc" ] = "<cmd>lua require('goto-preview').close_all_win()<CR>",
+ -- ["<leader>lha"] = "<cmd>lua require('lspsaga.codeaction').code_action()<CR>",
   -- ["<leader>lhf"] = "<cmd>lua require'lspsaga.provider'.lsp_finder()<CR>",
-  -- ["<leader>lha"] = "<cmd>lua require('lspsaga.codeaction').code_action()<CR>",
   -- ["<leader>lhd"] = "<cmd>lua require'lspsaga.provider'.preview_definition()<CR>",
   -- ["<leader>lhr"] = "<cmd>lua require'lspsaga.rename'.rename()<CR>",
 
@@ -692,7 +730,7 @@ lvim.keys.normal_mode = {
 
   ['<leader>ml'] = ':MarksListBuf<CR>',
   ['<leader>gg'] = "<Cmd>lua require('lvim.core.terminal')._exec_toggle('lazygit')<CR>",
-  ['<leader>ot'] = '<Cmd>execute v:count . "ToggleTerm"<CR>',
+  -- ['<leader>ot'] = '<Cmd>execute v:count . "ToggleTerm"<CR>',
   ['<leader>il'] =  "<cmd>Vista!!<CR>",
   ['<leader>id'] =  "<cmd>SymbolsOutline<CR>",
 
@@ -824,3 +862,10 @@ hi CursorColumn cterm=bold ctermbg=red guibg=#464646
 --   { "BufWinEnter", "*.lua", "setlocal ts=8 sw=8" },
 -- }
 
+
+-- }
+
+-- Autocommands (https://neovim.io/doc/user/autocmd.html)
+-- lvim.autocommands.custom_groups = {
+--   { "BufWinEnter", "*.lua", "setlocal ts=8 sw=8" },
+-- }
