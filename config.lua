@@ -74,8 +74,7 @@ lvim.keys.normal_mode["<C-s>"] = ":w<cr>"
 -- }
 
 
-cmd "hi CursorColumn guibg=#443960 gui=bold"
-vim.opt.relativenumber = false
+vim.opt.relativenumber = true
 vim.opt.ignorecase = false
 -- TODO: User Config for predefined plugins
 -- After changing plugin config exit and reopen LunarVim, Run :PackerInstall :PackerCompile
@@ -310,7 +309,6 @@ lvim.plugins = {
     "kevinhwang91/nvim-bqf",
     config=function()
       require("bqf").setup({
-
         auto_enable = true,
         preview = {
           win_height = 12,
@@ -330,7 +328,6 @@ lvim.plugins = {
           }
         }
       })
-
       vim.cmd "hi BqfPreviewBorder guifg=#50a14f ctermfg=71"
       vim.cmd "hi link BqfPreviewRange Search"
       vim.cmd "hi default link BqfPreviewFloat Normal"
@@ -430,18 +427,18 @@ lvim.plugins = {
       }
     end
   },
--- {
---   'brooth/far.vim'
--- },
-{
-  "windwp/nvim-spectre",
-  event = "BufRead",
-  config = function()
-    require("spectre").setup()
-  end,
-},
-{
-  'liuchengxu/vista.vim',
+  -- {
+  --   'brooth/far.vim'
+  -- },
+  {
+    "windwp/nvim-spectre",
+    event = "BufRead",
+    config = function()
+      require("spectre").setup()
+    end,
+  },
+  {
+    'liuchengxu/vista.vim',
   },
   {
     'simrat39/symbols-outline.nvim',
@@ -493,6 +490,8 @@ lvim.plugins = {
       vim.g.ale_echo_msg_warning_str = 'W'
       vim.g.ale_echo_msg_format = '[%linter%] %s [%severity%]'
       vim.g.ale_completion_enabled=0
+      vim.g.ale_lint_on_text_changed = "never"
+      vim.g.ale_lint_on_enter = 0
     end
   },
   {
@@ -682,6 +681,7 @@ lvim.builtin.which_key.mappings["b"] = {
 }
 
 lvim.builtin.which_key.mappings["f"] = {
+  t = {"<Cmd>Telescope current_buffer_fuzzy_find<CR>", "Current buffer fuzzy find"},
   f = {"<Cmd>Telescope find_files<CR>", "Find files"},
   g = {"<Cmd>Telescope live_grep<CR>", "Live grep"},
 }
@@ -697,10 +697,10 @@ lvim.keys.normal_mode["<leader>pi"] = false
 lvim.keys.normal_mode["<leader>pc"] = false
 
 lvim.keys.normal_mode = {
-      ["<leader>pd"] = "<cmd>lua require('goto-preview').goto_preview_definition()<CR>",
-      ["<leader>pi"] = "<cmd>lua require('goto-preview').goto_preview_implementation()<CR>",
-      ["<leader>pc" ] = "<cmd>lua require('goto-preview').close_all_win()<CR>",
- -- ["<leader>lha"] = "<cmd>lua require('lspsaga.codeaction').code_action()<CR>",
+  ["<leader>pd"] = "<cmd>lua require('goto-preview').goto_preview_definition()<CR>",
+  ["<leader>pi"] = "<cmd>lua require('goto-preview').goto_preview_implementation()<CR>",
+  ["<leader>pc" ] = "<cmd>lua require('goto-preview').close_all_win()<CR>",
+  -- ["<leader>lha"] = "<cmd>lua require('lspsaga.codeaction').code_action()<CR>",
   -- ["<leader>lhf"] = "<cmd>lua require'lspsaga.provider'.lsp_finder()<CR>",
   -- ["<leader>lhd"] = "<cmd>lua require'lspsaga.provider'.preview_definition()<CR>",
   -- ["<leader>lhr"] = "<cmd>lua require'lspsaga.rename'.rename()<CR>",
@@ -725,14 +725,12 @@ lvim.keys.normal_mode = {
   ["<leader>9"] = ":BufferLast<CR>",
 
   ['<leader>bp'] = ':BufferPick<CR>',
-  -- ['<A-c>'] = ':BufferClose<CR>',
   ['<Space>bb'] = ':BufferOrderByBufferNumber<CR>',
   ['<Space>bd'] = ':BufferOrderByDirectory<CR>',
   ['<Space>bl'] = ':BufferOrderByLanguage<CR>',
 
   ['<leader>ml'] = ':MarksListBuf<CR>',
   ['<leader>gg'] = "<Cmd>lua require('lvim.core.terminal')._exec_toggle('lazygit')<CR>",
-  -- ['<leader>ot'] = '<Cmd>execute v:count . "ToggleTerm"<CR>',
   ['<leader>il'] =  "<cmd>Vista!!<CR>",
   ['<leader>id'] =  "<cmd>SymbolsOutline<CR>",
 
