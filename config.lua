@@ -63,15 +63,6 @@ lvim.keys.normal_mode["<C-s>"] = ":w<cr>"
 
 -- Use which-key to add extra bindings with the leader-key prefix
 -- lvim.builtin.which_key.mappings["P"] = { "<cmd>Telescope projects<CR>", "Projects" }
--- lvim.builtin.which_key.mappings["t"] = {
---   name = "+Trouble",
---   r = { "<cmd>Trouble lsp_references<cr>", "References" },
---   f = { "<cmd>Trouble lsp_definitions<cr>", "Definitions" },
---   d = { "<cmd>Trouble lsp_document_diagnostics<cr>", "Diagnostics" },
---   q = { "<cmd>Trouble quickfix<cr>", "QuickFix" },
---   l = { "<cmd>Trouble loclist<cr>", "LocationList" },
---   w = { "<cmd>Trouble lsp_workspace_diagnostics<cr>", "Diagnostics" },
--- }
 
 
 vim.opt.relativenumber = true
@@ -358,6 +349,13 @@ lvim.plugins = {
     end,
 
   },
+
+  ------------
+  -- Jumping--
+  ------------
+  -- {
+  --   "andymass/vim-matchup",
+  -- },
   {
     "rhysd/accelerated-jk"
   },
@@ -475,6 +473,23 @@ lvim.plugins = {
     "sbdchd/neoformat",
     cmd="Neoformat"
   },
+
+  -- -- TODO: install neuron in docker
+  -- neovim 0.6.0 not supported
+  -- {
+  --   "oberblastmeister/neuron.nvim",
+  --   requires = { { "nvim-lua/popup.nvim" }, { "nvim-lua/plenary.nvim" }, { "nvim-telescope/telescope.nvim" } },
+  --   config = function ()
+  --   -- these are all the default values
+  --   require'neuron'.setup {
+  --       virtual_titles = true,
+  --       mappings = true,
+  --       run = nil, -- function to run when in neuron dir
+  --       neuron_dir = "~/neuron", -- the directory of all of your notes, expanded by default (currently supports only one directory for notes, find a way to detect neuron.dhall to use any directory)
+  --       leader = "gz", -- the leader key to for all mappings, remember with 'go zettel'
+  --   }
+  --   end
+  -- },
   {
     "Chiel92/vim-autoformat",
     config = function()
@@ -503,11 +518,11 @@ lvim.plugins = {
   },
   {
     "Pocco81/TrueZen.nvim",
-    cmd = {
-      "TZAtaraxis",
-      "TZMinimalist",
-      "TZFocus",
-    },
+    -- cmd = {
+    --   "TZAtaraxis",
+    --   "TZMinimalist",
+    --   "TZFocus",
+    -- },
     config = function()
       require("true-zen").setup{
         ui = {
@@ -574,9 +589,9 @@ lvim.plugins = {
       }
     end,
     setup = function()
-      map("n", "<leader>zz", ":TZAtaraxis<CR>", opt)
-      map("n", "<leader>zm", ":TZMinimalist<CR>", opt)
-      map("n", "<leader>zf", ":TZFocus<CR>", opt)
+      map("n", "<leader>vtz", ":TZAtaraxis<CR>", opt)
+      map("n", "<leader>vtm", ":TZMinimalist<CR>", opt)
+      map("n", "<leader>vtf", ":TZFocus<CR>", opt)
     end,
   },
 
@@ -635,6 +650,20 @@ lvim.plugins = {
       "Gedit"
     },
     ft = {"fugitive"}
+  },
+
+  --Session--
+  {
+    "folke/persistence.nvim",
+    event = "BufReadPre", -- this will only start session saving when an actual file was opened
+    module = "persistence",
+    config = function()
+      require("persistence").setup{
+        -- dir = vim.fn.expand(vim.fn.stdpath("config") .. "/sessions/"), -- directory where session files are saved
+        dir =  ".cache/sessions/", -- directory where session files are saved
+        options = { "buffers", "curdir", "tabpages", "winsize" }, -- sessionoptions used for saving
+      }
+    end,
   }
 }
 -- vim.api.nvim_command('highlight LightBulbFloatWin ctermfg= ctermbg= guifg= guibg=')
@@ -647,14 +676,27 @@ lvim.plugins = {
 
 ----
 
+
+lvim.keys.normal_mode["<leader>pd"] = false
+lvim.keys.normal_mode["<leader>pi"] = false
+lvim.keys.normal_mode["<leader>pc"] = false
+lvim.keys.normal_mode["<leader>q"]  = false
+
 lvim.builtin.which_key.mappings["t"] = {
   name = "+Trouble",
   r = { "<cmd>Trouble lsp_references<cr>", "References" },
   f = { "<cmd>Trouble lsp_definitions<cr>", "Definitions" },
-  d = { "<cmd>Trouble lsp_document_diagnostics<cr>", "Diagnosticss" },
+  d = { "<cmd>Trouble document_diagnostics<cr>", "Diagnosticss" },
   q = { "<cmd>Trouble quickfix<cr>", "QuickFix" },
   l = { "<cmd>Trouble loclist<cr>", "LocationList" },
-  w = { "<cmd>Trouble lsp_workspace_diagnostics<cr>", "Diagnosticss" },
+  w = { "<cmd>Trouble workspace_diagnostics<cr>", "Diagnosticss" },
+}
+
+lvim.builtin.which_key.mappings["q"] = {
+  name = "Persistence",
+  s = {'<cmd>lua require("persistence").load()<cr>', "restore the session for the current directory"},
+  l = {'<cmd>lua require("persistence").load({ last = true })<cr>', "restore the last session"},
+  d = {'<cmd>lua require("persistence").stop()<cr>', "stop Persistence => session won't be saved on exit"}
 }
 
 lvim.builtin.which_key.mappings["ss"] = {
@@ -692,9 +734,13 @@ lvim.builtin.which_key.mappings["s"] = {
   cp = {"<Cmd>lua require('telescope.builtin.internal').colorscheme({enable_preview = true})<CR>", "Select colorscheme preview"}
 }
 
-lvim.keys.normal_mode["<leader>pd"] = false
-lvim.keys.normal_mode["<leader>pi"] = false
-lvim.keys.normal_mode["<leader>pc"] = false
+lvim.builtin.which_key.mappings["v"] = {
+  name = "+View",
+  fi  = {"<cmd> set fdm=indent<CR>", "Set fdm to indent"},
+  fm  = {"<cmd> set fdm=manual<CR>", "Set fdm to manual"},
+  fe  = {"<cmd> set fdm=expr<CR>", "Set fdm to expression"},
+  fs  = {"<cmd> set fdm fdl<CR>", "Show fold status"}
+}
 
 lvim.keys.normal_mode = {
   ["<leader>pd"] = "<cmd>lua require('goto-preview').goto_preview_definition()<CR>",
@@ -723,11 +769,6 @@ lvim.keys.normal_mode = {
   ["<leader>7"] = ":BufferGoto 7<CR>",
   ["<leader>8"] = ":BufferGoto 8<CR>",
   ["<leader>9"] = ":BufferLast<CR>",
-
-  ['<leader>bp'] = ':BufferPick<CR>',
-  ['<Space>bb'] = ':BufferOrderByBufferNumber<CR>',
-  ['<Space>bd'] = ':BufferOrderByDirectory<CR>',
-  ['<Space>bl'] = ':BufferOrderByLanguage<CR>',
 
   ['<leader>ml'] = ':MarksListBuf<CR>',
   ['<leader>gg'] = "<Cmd>lua require('lvim.core.terminal')._exec_toggle('lazygit')<CR>",
@@ -848,13 +889,29 @@ map("n", "<C-e>r", ":WinResizerStartResize<CR>")
 map("n", "<C-e>m", ":WinResizerStartMove<CR>")
 map("n", "<C-e>f", ":WinResizerStartFocus<CR>")
 
+--     cmd "hi Visual guibg=#336600 gui=bold"
+
 lvim.autocommands.custom_groups = {
-  { "WinLeave", "*", "set cursorline cursorcolumn" },
-  { "WinEnter", "*", "set cursorline cursorcolumn" },
+  -- {"VimEnter", "*", "set cursorline cursorcolumn" },
+  -- {"VimEnter", "*", "hi CursorColumn guibg=#443960 gui=bold" },
+  -- {"VimEnter", "*", "hi CursorLine guibg=#443960 gui=bold,underline" },
+
+  {"VimEnter", "*", "set fdm=indent fdl=1"},
+
+  {"WinNew", "*", "setlocal cursorline cursorcolumn" },
+  {"WinNew", "*", "hi CursorColumn guibg=#443960 gui=bold" },
+  {"WinNew", "*", "hi CursorLine guibg=#443960 gui=bold,underline" },
+
+  {"WinEnter", "*", "setlocal cursorline cursorcolumn" },
+  {"WinEnter", "*", "hi CursorColumn guibg=#443960 gui=bold" },
+  {"WinEnter", "*", "hi CursorLine guibg=#443960 gui=bold,underline" },
+
+  {"WinLeave", "*", "setlocal nocursorline nocursorcolumn" },
+  {"WinLeave", "*", "hi CursorColumn guibg=None gui=None" },
+  {"WinLeave", "*", "hi CursorLine guibg=None gui=None,underline" },
+
 }
-vim.cmd [[
-hi CursorColumn cterm=bold ctermbg=red guibg=#464646
-]]
+
 -- map("n", miscMap.copywhole_file, ":%y+<CR>", opt)
 
 -- Autocommands (https://neovim.io/doc/user/autocmd.html)
