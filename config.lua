@@ -1,6 +1,5 @@
 -- THESE ARE EXAMPLE CONFIGS FEEL FREE TO CHANGE TO WHATEVER YOU WANT
 
-cmd = vim.cmd
 function map(mode, lhs, rhs, opts)
     local options = { noremap = true, silent = true }
     if opts then
@@ -163,6 +162,27 @@ lvim.lsp.on_attach_callback = function(client, bufnr)
     -- end
 end
 -- you can overwrite the null_ls setup table (useful for setting the root_dir function)
+
+require("lspconfig")["html"].setup(
+  {
+    filetypes= { "html", "hbs" },
+    init_options = {
+      configurationSection = { "html", "css", "javascript" },
+      embeddedLanguages = {
+        css = true,
+        javascript = true
+      },
+      provideFormatter = true
+    },
+    root_dir = function(startpath)
+        return M.search_ancestors(startpath, matcher)
+      end,
+    settings = {},
+    single_file_support = true
+  }
+)
+
+
 -- lvim.lsp.null_ls.setup = {
 --   root_dir = require("lspconfig").util.root_pattern("Makefile", ".git", "node_modules"),
 -- }
@@ -403,6 +423,21 @@ lvim.plugins = {
     ft = { 'html', 'css', 'javascript', 'javascriptreact', 'go', 'python', 'lua', 'rust', 'vim', 'less', 'stylus', 'sass', 'scss', 'json', 'ruby', 'toml' }
 
   },
+  {
+    "dstein64/nvim-scrollview",
+    config = function ()
+      vim.cmd "hi ScrollView ctermbg=159 guibg=LightCyan"
+    end
+  },
+  -- {
+  --   -- require manually install https://github.com/wfxr/code-minimap/releases
+  --   "wfxr/minimap.vim",
+  --   config = function ()
+  --     vim.g.minimap_width = 10
+  --     vim.g.minimap_auto_start = 1
+  --     vim.g.minimap_auto_start_win_enter = 1
+  --   end
+  -- },
   -- {
   --   "blackCauldron7/surround.nvim",
   --   config = function()
@@ -676,7 +711,13 @@ lvim.plugins = {
         options = { "buffers", "curdir", "tabpages", "winsize" }, -- sessionoptions used for saving
         }
     end,
-  }
+  },
+
+  -----------
+  --Web dev--
+-- {
+--     "github/copilot.vim"
+--   }
 }
 -- vim.api.nvim_command('highlight LightBulbFloatWin ctermfg= ctermbg= guifg= guibg=')
 -- vim.api.nvim_command('highlight LightBulbVirtualText ctermfg= ctermbg= guifg= guibg=')
@@ -782,7 +823,7 @@ lvim.keys.normal_mode = {
   ['<leader>il'] = "<cmd>Vista!!<CR>",
   ['<leader>id'] = "<cmd>SymbolsOutline<CR>",
 
-  ['<leader>rf'] = "RnvimrToggle"
+  ['<leader>rf'] = "<cmd>RnvimrToggle<CR>"
 }
 
 map("n", "<leader>m,", "<Plug>(Marks-setnext)", { noremap = false })
@@ -900,10 +941,6 @@ map("n", "<C-e>f", ":WinResizerStartFocus<CR>")
 --     cmd "hi Visual guibg=#336600 gui=bold"
 
 lvim.autocommands.custom_groups = {
-  -- {"VimEnter", "*", "set cursorline cursorcolumn" },
-  -- {"VimEnter", "*", "hi CursorColumn guibg=#443960 gui=bold" },
-  -- {"VimEnter", "*", "hi CursorLine guibg=#443960 gui=bold,underline" },
-
   { "VimEnter", "*", "set fdm=indent fdl=1" },
   { "VimEnter", "*", "hi SignColumn guibg=none" },
 
