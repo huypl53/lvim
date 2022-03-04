@@ -76,6 +76,7 @@ lvim.builtin.nvimtree.setup.update_cwd = false
 -- lvim.builtin.project.active = false
 lvim.builtin.project.manual_mode = true
 
+lvim.transparent_window = true
 -- if you don't want all the parsers change this to a table of the ones you want
 lvim.builtin.treesitter.ensure_installed = {
   "bash",
@@ -411,9 +412,9 @@ lvim.plugins = {
   {
     "tpope/vim-surround"
   },
-  {
-    "tribela/vim-transparent"
-  },
+  -- {
+  --   "tribela/vim-transparent"
+  -- },
   {
     "chentau/marks.nvim",
     event = "BufEnter",
