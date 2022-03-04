@@ -781,6 +781,7 @@ lvim.keys.normal_mode = {
   ['<leader>il'] = "<cmd>Vista!!<CR>",
   ['<leader>id'] = "<cmd>SymbolsOutline<CR>",
 
+  ['<leader>rf'] = "RnvimrToggle"
 }
 
 map("n", "<leader>m,", "<Plug>(Marks-setnext)", { noremap = false })
