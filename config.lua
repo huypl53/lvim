@@ -212,6 +212,7 @@ end
 ----------------------------
 -- Disable default plugins--
 ----------------------------
+lvim.builtin.bufferline.active = false
 lvim.keys.normal_mode["<leader>h"] = nil
 -- Additional Plugins
 lvim.plugins = {
@@ -292,6 +293,10 @@ lvim.plugins = {
         require "refactoring".setup()
     end
 
+  },
+  {
+    "romgrk/barbar.nvim",
+    requires = {'kyazdani42/nvim-web-devicons'}
   },
   -----------------
   --Coding helper--
@@ -717,15 +722,11 @@ lvim.builtin.which_key.mappings["b"] = {
   l = { "<Cmd>Telescope buffers<CR>", "Telescope show buffers" },
   ck = { "<Cmd>BufferCloseBuffersRight<CR>", "Close buffers right" },
   cj = { "<Cmd>BufferCloseBuffersLeft<CR>", "Close buffers left" },
-  cc = { "<Cmd>BufferClose!<CR>", "Close current buffer" },
-  ec = { "<Cmd>BufferCloseAllButCurrent<CR>", "Buffers close all but current" },
-  ep = { "<Cmd>BufferCloseAllButPinned<CR>", "Buffers close all but pinned" },
+  cc = { "<Cmd>BufferClose<CR>", "Close current buffer" },
   p = { "<Cmd>BufferPick<CR>", "Buffer pick" },
   ol = { "<Cmd>BufferOrderByLanguage<CR>", "Buffer order by languge" },
   od = { "<Cmd>BufferOrderByDirectory<CR>", "Buffer order by directory" },
   on = { "<Cmd>BufferOrderByBufferNumber<CR>", "Buffer orfer by number" },
-  bb = { "<Cmd>BufferPin<CR>", "Buffer pin" },
-  w = { "<Cmd>BufferWipeout<CR>", "Buffer wipe out" }
 }
 
 lvim.builtin.which_key.mappings["f"] = {
@@ -762,19 +763,18 @@ lvim.keys.normal_mode = {
   ["<C-h>"] = "<cmd>wincmd h<CR>",
   ["<C-l>"] = "<cmd>wincmd l<CR>",
 
-  ["<S-h>"] = ":BufferPrevious<CR>",
   ["<S-l>"] = ":BufferNext<CR>",
+  ["<S-h>"] = ":BufferPrevious<CR>",
   ["<leader><"] = ":BufferMovePrevious<CR>",
   ["<leader>>"] = ":BufferMoveNext<CR>",
-  ["<leader>1"] = ":BufferLineGoToBuffer 1<CR>",
-  ["<leader>2"] = ":BufferLineGoToBuffer 2<CR>",
-  ["<leader>3"] = ":BufferLineGoToBuffer 3<CR>",
-  ["<leader>4"] = ":BufferLineGoToBuffer 4<CR>",
-  ["<leader>5"] = ":BufferLineGoToBuffer 5<CR>",
-  ["<leader>6"] = ":BufferLineGoToBuffer 6<CR>",
-  ["<leader>7"] = ":BufferLineGoToBuffer 7<CR>",
-  ["<leader>8"] = ":BufferLineGoToBuffer 8<CR>",
-  ["<leader>9"] = ":BufferLast<CR>",
+  ["<leader>1"] = ":BufferGoTo 1<CR>",
+  ["<leader>2"] = ":BufferGoTo 2<CR>",
+  ["<leader>3"] = ":BufferGoTo 3<CR>",
+  ["<leader>4"] = ":BufferGoTo 4<CR>",
+  ["<leader>5"] = ":BufferGoTo 5<CR>",
+  ["<leader>6"] = ":BufferGoTo 6<CR>",
+  ["<leader>7"] = ":BufferGoTo 7<CR>",
+  ["<leader>8"] = ":BufferGoTo 8<CR>",
 
   ['<leader>ml'] = ':MarksListBuf<CR>',
   ['<leader>gg'] = "<Cmd>lua require('lvim.core.terminal')._exec_toggle('lazygit')<CR>",
