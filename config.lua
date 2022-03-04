@@ -91,16 +91,22 @@ lvim.builtin.treesitter.ensure_installed = {
   "yaml",
 }
 
+-- Beautify
 lvim.builtin.treesitter.ignore_install = { "haskell" }
 lvim.builtin.treesitter.highlight.enabled = true
 
--- Beautify
 local components = require("lvim.core.lualine.components")
 components.filename.path = 1
 lvim.builtin.lualine.sections.lualine_b = {
   components.branch,
   components.filename,
 }
+
+--Coding--
+
+-- local cmp_sources = require("lvim.builtin.cmp.sources")
+-- cmp_sources.name = 'cmp_tabnine'
+-- Beautify
 
 -- generic LSP settings
 
@@ -174,9 +180,6 @@ require("lspconfig")["html"].setup(
       },
       provideFormatter = true
     },
-    root_dir = function(startpath)
-        return M.search_ancestors(startpath, matcher)
-      end,
     settings = {},
     single_file_support = true
   }
@@ -516,9 +519,16 @@ lvim.plugins = {
         vim.g.mkdp_echo_preview_url = 1
     end
   },
+
+  ------------
+  --foramter--
+  ------------
   {
     "sbdchd/neoformat",
     cmd = "Neoformat"
+  },
+  {
+    "mhartington/formatter.nvim"
   },
 
   -- -- TODO: install neuron in docker
@@ -645,7 +655,21 @@ lvim.plugins = {
   --------------
   --BEAUTIFING--
   --------------
-
+{
+    "prettier/vim-prettier",
+    run = "yarn install --frozen-lockfile --production",
+    ft = {
+      'javascript',
+      'typescript',
+      'css',
+      'less',
+      'scss',
+      'graphql',
+      'markdown',
+      'vue',
+      'html',
+    }
+  },
   ----------------------
   --ACCELERATED-CODING--
   ----------------------
@@ -715,9 +739,12 @@ lvim.plugins = {
 
   -----------
   --Web dev--
--- {
---     "github/copilot.vim"
---   }
+
+  -------------
+  --Formatter--
+  {
+    "andrejlevkovitch/vim-lua-format"
+  }
 }
 -- vim.api.nvim_command('highlight LightBulbFloatWin ctermfg= ctermbg= guifg= guibg=')
 -- vim.api.nvim_command('highlight LightBulbVirtualText ctermfg= ctermbg= guifg= guibg=')
