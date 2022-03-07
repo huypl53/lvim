@@ -38,7 +38,7 @@ lvim.localleader = ";"
 lvim.keys.normal_mode["<C-s>"] = ":w<cr>"
 
 vim.opt.relativenumber = true
-vim.opt.ignorecase = false
+vim.opt.ignorecase = true
 -- TODO: User Config for predefined plugins
 -- After changing plugin config exit and reopen LunarVim, Run :PackerInstall :PackerCompile
 lvim.builtin.dashboard.active = false
@@ -113,7 +113,39 @@ lvim.lsp.on_attach_callback = function(client, bufnr)
     -- end
 end
 -- you can overwrite the null_ls setup table (useful for setting the root_dir function)
+local function goto_definition(split_cmd)
+  local util = vim.lsp.util
+  local log = require("vim.lsp.log")
+  local api = vim.api
 
+  -- note, this handler style is for neovim 0.5.1/0.6, if on 0.5, call with function(_, method, result)
+  local handler = function(_, result, ctx)
+    if result == nil or vim.tbl_isempty(result) then
+      local _ = log.info() and log.info(ctx.method, "No location found")
+      return nil
+    end
+
+    if split_cmd then
+      vim.cmd(split_cmd)
+    end
+
+    if vim.tbl_islist(result) then
+      util.jump_to_location(result[1])
+
+      if #result > 1 then
+        util.setqflist(util.locations_to_items(result))
+        api.nvim_command("copen")
+        api.nvim_command("wincmd p")
+      end
+    else
+      util.jump_to_location(result)
+    end
+  end
+
+  return handler
+end
+
+vim.lsp.handlers["textDocument/definition"] = goto_definition('split')
 require("lspconfig")["html"].setup(
   {
     filetypes= { "html", "hbs" },
@@ -541,12 +573,18 @@ lvim.plugins = {
     "dense-analysis/ale",
     after = "nvim-lspconfig",
     config = function()
-        vim.g.ale_echo_msg_error_str = 'E'
-        vim.g.ale_echo_msg_warning_str = 'W'
-        vim.g.ale_echo_msg_format = '[%linter%] %s [%severity%]'
-        vim.g.ale_completion_enabled = 0
-        vim.g.ale_lint_on_text_changed = "never"
-        vim.g.ale_lint_on_enter = 0
+      vim.g.ale_echo_msg_error_str = 'E'
+      vim.g.ale_echo_msg_warning_str = 'W'
+      vim.g.ale_echo_msg_format = '[%linter%] %s [%severity%]'
+      vim.g.ale_completion_enabled = 0
+      vim.g.ale_lint_on_text_changed = "never"
+      vim.g.ale_lint_on_enter = 0
+      vim.g.ale_sign_error = " "
+      vim.g.ale_sign_warning = " "
+      vim.cmd [[
+        highlight clear ALEErrorSign
+        highlight clear ALEWarningSign
+      ]]
     end
   },
   {
@@ -558,11 +596,6 @@ lvim.plugins = {
   },
   {
     "Pocco81/TrueZen.nvim",
-    -- cmd = {
-    --   "TZAtaraxis",
-    --   "TZMinimalist",
-    --   "TZFocus",
-    -- },
     config = function()
         require("true-zen").setup {
         ui = {
@@ -904,7 +937,7 @@ lvim.keys.insert_mode = {
   ["<C-k>"] = "<C-c>hei",
   ["<C-a>"] = "<C-c>A",
   ["<C-o>"] = "<C-c>A<Left>",
-  ["<C-n>"] = "<C-c>o",
+  ["<C-l>"] = "<C-c>o",
   -- ["<S-Enter>"] = "<C-c>O"
 }
 
@@ -915,8 +948,6 @@ vim.api.nvim_set_keymap("n", "k", "<Plug>(accelerated_jk_gk)", {})
 
 vim.g.lazyredraw = true --improve scrolling performance when navigating through large results
 vim.g.regexpengine = 1 --use old regexp engine
---set ignorecase smartcase  " ignore case only when the pattern contains no capital letters
-vim.g.ignore = 'smartcase'
 
 ----------------------
 --jpalardy/vim-slime--
