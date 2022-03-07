@@ -335,7 +335,14 @@ lvim.plugins = {
   },
   {
     "romgrk/barbar.nvim",
-    requires = {'kyazdani42/nvim-web-devicons'}
+    requires = {'kyazdani42/nvim-web-devicons'},
+    config = function()
+      vim.cmd [[
+      let bufferline = get(g:, 'bufferline', {})
+      let bufferline.icon_separator_active = ''
+      let bufferline.icon_separator_inactive = ''
+      ]]
+    end
   },
   -----------------
   --Coding helper--
