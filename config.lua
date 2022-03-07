@@ -88,9 +88,9 @@ lvim.lsp.on_attach_callback = function(client, bufnr)
 
     -- Mappings.
 
-    -- buf_set_keymap("n", "gD", "<Cmd>lua vim.lsp.buf.declaration()<CR>", opts)
-    -- buf_set_keymap("n", "gd", "<Cmd>lua vim.lsp.buf.definition()<CR>", opts)
-    -- buf_set_keymap("n", "K", "<Cmd>lua vim.lsp.buf.hover()<CR>", opts)
+    buf_set_keymap("n", "gD", "<Cmd>lua vim.lsp.buf.declaration()<CR>", opts)
+    buf_set_keymap("n", "gd", "<Cmd>lua vim.lsp.buf.definition()<CR>", opts)
+    buf_set_keymap("n", "K", "<Cmd>lua vim.lsp.buf.hover()<CR>", opts)
     buf_set_keymap("n", "gi", "<cmd>lua vim.lsp.buf.implementation()<CR>", opts)
     buf_set_keymap("n", "<A-k>", "<cmd>lua vim.lsp.buf.signature_help()<CR>", opts)
     buf_set_keymap("n", "<space>wa", "<cmd>lua vim.lsp.buf.add_workspace_folder()<CR>", opts)
@@ -129,10 +129,21 @@ require("lspconfig")["html"].setup(
     single_file_support = true
   }
 )
+-- $ npm install -g emmet-ls
+vim.list_extend(lvim.lsp.override, { "emmet_ls" })
+local capabilities = vim.lsp.protocol.make_client_capabilities()
+capabilities.textDocument.completion.completionItem.snippetSupport = true
+require("lspconfig")['emmet_ls'].setup(
+{
+    on_attach = lvim.lsp.on_attach_callback,
+    capabilities = capabilities,
+    filetypes = { "html", "css", "typescriptreact", "javascriptreact" },
+  }
+)
 
 require("lspconfig")["eslint"].setup(
 {
-       cmd = { "vscode-eslint-language-server", "--stdio" },
+     cmd = { "vscode-eslint-language-server", "--stdio" },
     filetypes = { "javascript", "javascriptreact", "javascript.jsx", "typescript", "typescriptreact", "typescript.tsx", "vue" },
     on_new_config = function(config, new_root_dir)
           -- The "workspaceFolder" is a VSCode concept. It limits how far the
@@ -711,6 +722,47 @@ lvim.plugins = {
 
   -----------
   --Web dev--
+  {
+    -- https://deno.land/
+    -- $curl -fsSL https://deno.land/install.sh | sh
+    -- $sudo ln -s ~/.deno/bin/deno /usr/local/bin/
+    "Shougo/ddc.vim",
+    requires = {
+      'neovim/nvim-lspconfig',
+      'vim-denops/denops.vim',
+      'Shougo/ddc.vim',
+      'Shougo/ddc-nvim-lsp',
+      'Shougo/ddc-matcher_head',
+      'Shougo/ddc-sorter_rank',
+    },
+    config = function ()
+      vim.cmd [[ 
+        call ddc#custom#patch_global('sourceOptions', {
+              \ '_': {
+              \   'matchers': ['matcher_head'],
+              \   'sorters': ['sorter_rank']},
+              \ })
+
+        call ddc#custom#patch_global('sources', ['nvim-lsp'])
+        call ddc#custom#patch_global('sourceOptions', {
+              \ 'nvim-lsp': {
+              \   'mark': 'lsp',
+              \   'forceCompletionPattern': '\.\w*|:\w*|->\w*' },
+              \ })
+        
+
+        inoremap <silent><expr> <TAB>
+        \ ddc#map#pum_visible() ? '<C-n>' :
+        \ (col('.') <= 1 <Bar><Bar> getline('.')[col('.') - 2] =~# '\s') ?
+        \ '<TAB>' : ddc#map#manual_complete()
+
+        inoremap <expr><S-TAB>  ddc#map#pum_visible() ? '<C-p>' : '<C-h>'
+
+        call ddc#enable()
+      ]]
+    end
+    -- "vim-denops/denops.vim"
+  },
 
   -------------
   --Formatter--
