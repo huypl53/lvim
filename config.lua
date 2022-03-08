@@ -423,9 +423,6 @@ lvim.plugins = {
 	------------
 	-- Jumping--
 	------------
-	-- {
-	--   "andymass/vim-matchup",
-	-- },
 	{
 		"rhysd/accelerated-jk",
 	},
@@ -486,21 +483,6 @@ lvim.plugins = {
 			vim.cmd("hi ScrollView ctermbg=159 guibg=LightCyan")
 		end,
 	},
-	-- {
-	--   -- require manually install https://github.com/wfxr/code-minimap/releases
-	--   "wfxr/minimap.vim",
-	--   config = function ()
-	--     vim.g.minimap_width = 10
-	--     vim.g.minimap_auto_start = 1
-	--     vim.g.minimap_auto_start_win_enter = 1
-	--   end
-	-- },
-	-- {
-	--   "blackCauldron7/surround.nvim",
-	--   config = function()
-	--     require"surround".setup {mappings_style = "sandwich"}
-	--   end
-	-- },
 	{
 		"tpope/vim-surround",
 	},
@@ -737,19 +719,6 @@ lvim.plugins = {
 	{
 		"rhysd/clever-f.vim",
 	},
-	-- {
-	--   "rmagatti/goto-preview",
-	--   config = function()
-	--       require('goto-preview').setup {
-	--       width = 120; -- Width of the floating window
-	--       height = 25; -- Height of the floating window
-	--       default_mappings = false; -- Bind default mappings
-	--       debug = false; -- Print debug information
-	--       opacity = nil; -- 0-100 opacity level of the floating window where 100 is fully transparent.
-	--       post_open_hook = nil -- A function taking two arguments, a buffer and a window to be ran as a hook.
-	--       }
-	--   end
-	-- },
 	-------
 	--Git--
 	-------
@@ -786,51 +755,21 @@ lvim.plugins = {
 			})
 		end,
 	},
-
 	-----------
 	--Web dev--
 	{
-		-- https://deno.land/
-		-- $curl -fsSL https://deno.land/install.sh | sh
-		-- $sudo ln -s ~/.deno/bin/deno /usr/local/bin/
-		"Shougo/ddc.vim",
-		requires = {
-			"neovim/nvim-lspconfig",
-			"vim-denops/denops.vim",
-			"Shougo/ddc.vim",
-			"Shougo/ddc-nvim-lsp",
-			"Shougo/ddc-matcher_head",
-			"Shougo/ddc-sorter_rank",
-		},
+		"tzachar/cmp-tabnine",
+    ft = { 'js', 'ts', 'py', 'vue' },
+		run = "./install.sh",
+		requires = "hrsh7th/nvim-cmp",
 		config = function()
-			vim.cmd([[ 
-        call ddc#custom#patch_global('sourceOptions', {
-              \ '_': {
-              \   'matchers': ['matcher_head'],
-              \   'sorters': ['sorter_rank']},
-              \ })
-
-        call ddc#custom#patch_global('sources', ['nvim-lsp'])
-        call ddc#custom#patch_global('sourceOptions', {
-              \ 'nvim-lsp': {
-              \   'mark': 'lsp',
-              \   'forceCompletionPattern': '\.\w*|:\w*|->\w*' },
-              \ })
-        
-
-        inoremap <silent><expr> <TAB>
-        \ ddc#map#pum_visible() ? '<C-n>' :
-        \ (col('.') <= 1 <Bar><Bar> getline('.')[col('.') - 2] =~# '\s') ?
-        \ '<TAB>' : ddc#map#manual_complete()
-
-        inoremap <expr><S-TAB>  ddc#map#pum_visible() ? '<C-p>' : '<C-h>'
-
-        call ddc#enable()
-      ]])
+			require("cmp").setup({
+				sources = {
+					{ name = "cmp_tabnine" },
+				},
+			})
 		end,
-		-- "vim-denops/denops.vim"
 	},
-
 	-------------
 	--Formatter--
 	{
