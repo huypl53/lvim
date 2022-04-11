@@ -122,39 +122,39 @@ lvim.lsp.on_attach_callback = function(client, bufnr)
 	-- end
 end
 -- you can overwrite the null_ls setup table (useful for setting the root_dir function)
-local function goto_definition(split_cmd)
-	local util = vim.lsp.util
-	local log = require("vim.lsp.log")
-	local api = vim.api
+-- local function goto_definition(split_cmd)
+-- 	local util = vim.lsp.util
+-- 	local log = require("vim.lsp.log")
+-- 	local api = vim.api
 
-	-- note, this handler style is for neovim 0.5.1/0.6, if on 0.5, call with function(_, method, result)
-	local handler = function(_, result, ctx)
-		if result == nil or vim.tbl_isempty(result) then
-			local _ = log.info() and log.info(ctx.method, "No location found")
-			return nil
-		end
+-- 	-- note, this handler style is for neovim 0.5.1/0.6, if on 0.5, call with function(_, method, result)
+-- 	local handler = function(_, result, ctx)
+-- 		if result == nil or vim.tbl_isempty(result) then
+-- 			local _ = log.info() and log.info(ctx.method, "No location found")
+-- 			return nil
+-- 		end
 
-		if split_cmd then
-			vim.cmd(split_cmd)
-		end
+-- 		if split_cmd then
+-- 			vim.cmd(split_cmd)
+-- 		end
 
-		if vim.tbl_islist(result) then
-			util.jump_to_location(result[1])
+-- 		if vim.tbl_islist(result) then
+-- 			util.jump_to_location(result[1])
 
-			if #result > 1 then
-				util.setqflist(util.locations_to_items(result))
-				api.nvim_command("copen")
-				api.nvim_command("wincmd p")
-			end
-		else
-			util.jump_to_location(result)
-		end
-	end
+-- 			if #result > 1 then
+-- 				util.setqflist(util.locations_to_items(result))
+-- 				api.nvim_command("copen")
+-- 				api.nvim_command("wincmd p")
+-- 			end
+-- 		else
+-- 			util.jump_to_location(result)
+-- 		end
+-- 	end
 
-	return handler
-end
+-- 	return handler
+-- end
+-- vim.lsp.handlers["textDocument/definition"] = goto_definition("split")
 
-vim.lsp.handlers["textDocument/definition"] = goto_definition("split")
 require("lspconfig")["html"].setup({
 	filetypes = { "html", "hbs" },
 	init_options = {
@@ -227,6 +227,75 @@ require("lspconfig")["eslint"].setup({
 	},
 })
 
+require("lspconfig")["tsserver"].setup(
+  {
+    -- Needed for inlayHints. Merge this table with your settings or copy
+    -- it from the source if you want to add your own init_options.
+    init_options = require("nvim-lsp-ts-utils").init_options,
+    --
+    on_attach = function(client, bufnr)
+        local ts_utils = require("nvim-lsp-ts-utils")
+
+        -- defaults
+        ts_utils.setup({
+            debug = false,
+            disable_commands = false,
+            enable_import_on_completion = false,
+
+            -- import all
+            import_all_timeout = 5000, -- ms
+            -- lower numbers = higher priority
+            import_all_priorities = {
+                same_file = 1, -- add to existing import statement
+                local_files = 2, -- git files or files with relative path markers
+                buffer_content = 3, -- loaded buffer content
+                buffers = 4, -- loaded buffer names
+            },
+            import_all_scan_buffers = 100,
+            import_all_select_source = false,
+            -- if false will avoid organizing imports
+            always_organize_imports = true,
+
+            -- filter diagnostics
+            filter_out_diagnostics_by_severity = {},
+            filter_out_diagnostics_by_code = {},
+
+            -- inlay hints
+            auto_inlay_hints = true,
+            inlay_hints_highlight = "Comment",
+            inlay_hints_priority = 200, -- priority of the hint extmarks
+            inlay_hints_throttle = 150, -- throttle the inlay hint request
+            inlay_hints_format = { -- format options for individual hint kind
+                Type = {},
+                Parameter = {},
+                Enum = {},
+                -- Example format customization for `Type` kind:
+                -- Type = {
+                --     highlight = "Comment",
+                --     text = function(text)
+                --         return "->" .. text:sub(2)
+                --     end,
+                -- },
+            },
+
+            -- update imports on file move
+            update_imports_on_move = false,
+            require_confirmation_on_move = false,
+            watch_dir = nil,
+        })
+
+        -- required to fix code action ranges and filter diagnostics
+        ts_utils.setup_client(client)
+
+        -- no default maps, so you may want to define some here
+        local opts = { silent = true }
+        -- vim.api.nvim_buf_set_keymap(bufnr, "n", "gs", ":TSLspOrganize<CR>", opts)
+        vim.api.nvim_buf_set_keymap(bufnr, "n", "<leader>lr", ":TSLspRenameFile<CR>", opts)
+        -- vim.api.nvim_buf_set_keymap(bufnr, "n", "gi", ":TSLspImportAll<CR>", opts)
+    end,
+}
+)
+
 local formatters = require("lvim.lsp.null-ls.formatters")
 formatters.setup({
 	{
@@ -253,13 +322,13 @@ formatters.setup({
 	},
 })
 
-local linters = require("lvim.lsp.null-ls.linters")
-linters.setup({
-	{
-		exe = "eslint_d",
-		filetypes = { "javascript", "javascriptreact", "typescript", "typescriptreact" },
-	},
-})
+-- local linters = require("lvim.lsp.null-ls.linters")
+-- linters.setup({
+-- 	{
+-- 		exe = "eslint_d",
+-- 		filetypes = { "javascript", "javascriptreact", "typescript", "typescriptreact" },
+-- 	},
+-- })
 
 ----------------------------
 -- Disable default plugins--
@@ -526,6 +595,11 @@ lvim.plugins = {
 	},
 	{
 		"simrat39/symbols-outline.nvim",
+    config = function ()
+      vim.g.symbols_outline = {
+        auto_preview = false
+      }
+    end
 	},
 	{
 		"AndrewRadev/splitjoin.vim",
@@ -590,24 +664,24 @@ lvim.plugins = {
 			vim.g.formatterpath = "$HOME/.local/bin/black"
 		end,
 	},
-	{
-		"dense-analysis/ale",
-		after = "nvim-lspconfig",
-		config = function()
-			vim.g.ale_echo_msg_error_str = "E"
-			vim.g.ale_echo_msg_warning_str = "W"
-			vim.g.ale_echo_msg_format = "[%linter%] %s [%severity%]"
-			vim.g.ale_completion_enabled = 0
-			vim.g.ale_lint_on_text_changed = "never"
-			vim.g.ale_lint_on_enter = 0
-			vim.g.ale_sign_error = " "
-			vim.g.ale_sign_warning = " "
-			vim.cmd([[
-        highlight clear ALEErrorSign
-        highlight clear ALEWarningSign
-      ]])
-		end,
-	},
+	-- {
+	-- 	"dense-analysis/ale",
+	-- 	after = "nvim-lspconfig",
+	-- 	config = function()
+	-- 		vim.g.ale_echo_msg_error_str = "E"
+	-- 		vim.g.ale_echo_msg_warning_str = "W"
+	-- 		vim.g.ale_echo_msg_format = "[%linter%] %s [%severity%]"
+	-- 		vim.g.ale_completion_enabled = 0
+	-- 		vim.g.ale_lint_on_text_changed = "never"
+	-- 		vim.g.ale_lint_on_enter = 0
+	-- 		vim.g.ale_sign_error = " "
+	-- 		vim.g.ale_sign_warning = " "
+	-- 		vim.cmd([[
+ --        highlight clear ALEErrorSign
+ --        highlight clear ALEWarningSign
+ --      ]])
+	-- 	end,
+	-- },
 	{
 		"t9md/vim-choosewin",
 		config = function()
@@ -770,6 +844,10 @@ lvim.plugins = {
 			})
 		end,
 	},
+  {
+    "jose-elias-alvarez/nvim-lsp-ts-utils"
+
+  },
 	-------------
 	--Formatter--
 	{
@@ -871,14 +949,14 @@ lvim.keys.normal_mode = {
 	["<S-h>"] = ":BufferPrevious<CR>",
 	["<leader><"] = ":BufferMovePrevious<CR>",
 	["<leader>>"] = ":BufferMoveNext<CR>",
-	["<leader>1"] = ":BufferGoTo 1<CR>",
-	["<leader>2"] = ":BufferGoTo 2<CR>",
-	["<leader>3"] = ":BufferGoTo 3<CR>",
-	["<leader>4"] = ":BufferGoTo 4<CR>",
-	["<leader>5"] = ":BufferGoTo 5<CR>",
-	["<leader>6"] = ":BufferGoTo 6<CR>",
-	["<leader>7"] = ":BufferGoTo 7<CR>",
-	["<leader>8"] = ":BufferGoTo 8<CR>",
+	["<leader>1"] = ":BufferGoto 1<CR>",
+	["<leader>2"] = ":BufferGoto 2<CR>",
+	["<leader>3"] = ":BufferGoto 3<CR>",
+	["<leader>4"] = ":BufferGoto 4<CR>",
+	["<leader>5"] = ":BufferGoto 5<CR>",
+	["<leader>6"] = ":BufferGoto 6<CR>",
+	["<leader>7"] = ":BufferGoto 7<CR>",
+	["<leader>8"] = ":BufferGoto 8<CR>",
 
 	["<leader>ml"] = ":MarksListBuf<CR>",
 	["<leader>gg"] = "<Cmd>lua require('lvim.core.terminal')._exec_toggle('lazygit')<CR>",
@@ -909,7 +987,7 @@ lvim.keys.visual_mode = {
 lvim.keys.insert_mode = {
 	["<C-j>"] = "<C-c>lbi",
 	["<C-k>"] = "<C-c>hei",
-	["<C-a>"] = "<C-c>A",
+	["<C-e>"] = "<C-c>A",
 	["<C-o>"] = "<C-c>A<Left>",
 	["<C-l>"] = "<C-c>o",
 	-- ["<S-Enter>"] = "<C-c>O"
@@ -983,6 +1061,8 @@ lvim.autocommands.custom_groups = {
 	{ "WinLeave", "*", "setlocal nocursorline nocursorcolumn" },
 	{ "WinLeave", "*", "hi CursorColumn guibg=None gui=None" },
 	{ "WinLeave", "*", "hi CursorLine guibg=None gui=None,underline" },
+
+  {"BufRead", "*.jsx", "set filetype=javascript"}
 }
 
 -- map("n", miscMap.copywhole_file, ":%y+<CR>", opt)
