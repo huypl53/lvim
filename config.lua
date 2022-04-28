@@ -8,6 +8,7 @@ function map(mode, lhs, rhs, opts)
 	vim.api.nvim_set_keymap(mode, lhs, rhs, options)
 end
 
+
 opt = {}
 
 function split(inputstr, sep)
@@ -41,7 +42,7 @@ vim.opt.relativenumber = true
 vim.opt.ignorecase = true
 -- TODO: User Config for predefined plugins
 -- After changing plugin config exit and reopen LunarVim, Run :PackerInstall :PackerCompile
-lvim.builtin.dashboard.active = false
+lvim.builtin.alpha.mode = "startify"
 lvim.builtin.notify.active = true
 lvim.builtin.terminal.active = true
 lvim.builtin.nvimtree.show_icons.git = 0
@@ -171,7 +172,7 @@ require("lspconfig")["html"].setup({
 	single_file_support = true,
 })
 -- $ npm install -g emmet-ls
-vim.list_extend(lvim.lsp.override, { "emmet_ls" })
+-- vim.list_extend(lvim.lsp.override, { "emmet_ls" })
 local capabilities = vim.lsp.protocol.make_client_capabilities()
 capabilities.textDocument.completion.completionItem.snippetSupport = true
 require("lspconfig")["emmet_ls"].setup({
@@ -479,6 +480,9 @@ lvim.plugins = {
 			"toml",
 		},
 	},
+{
+  "ap/vim-css-color"
+},
 	{
 		"dstein64/nvim-scrollview",
 		config = function()
@@ -531,6 +535,7 @@ lvim.plugins = {
 		config = function()
 			vim.g.symbols_outline = {
 				auto_preview = false,
+        width = 18
 			}
 		end,
 	},
@@ -721,6 +726,7 @@ lvim.plugins = {
 		"max397574/better-escape.nvim",
 		config = function()
 			require("better_escape").setup()
+      vim.g.better_escape_interval = 0
 		end,
 	},
 	{
@@ -954,17 +960,17 @@ map("n", "<leader>dm[0-9]", "<Plug>(Marks-delete-bookmark[0-9])", { noremap = fa
 map("n", "<leader>m}", "<Plug>(Marks-next-bookmark[0-9])", { noremap = false })
 map("n", "<leader>m{", "<Plug>(Marks-pre-bookmark[0-9])", { noremap = false })
 
-lvim.keys.visual_mode = {
+-- lvim.keys.visual_mode = {
 	-- ["<leader>lha"] = "<cmd>lua require('lspsaga.codeaction').range_code_action()<CR>",
-}
+-- }
 
 lvim.keys.insert_mode = {
 	["<C-j>"] = "<C-c>lbi",
-	["<C-k>"] = "<C-c>hei",
+	["<C-k>"] = "<C-c>hea",
 	["<C-e>"] = "<C-c>A",
 	["<C-o>"] = "<C-c>A<Left>",
 	["<C-l>"] = "<C-c>o",
-	-- ["<S-Enter>"] = "<C-c>O"
+	["<M-b>"] = "<C-c>F{a"
 }
 
 lvim.keys.normal_mode["<Esc>"] = ":nohlsearch<cr>"
