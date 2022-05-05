@@ -411,15 +411,33 @@ lvim.plugins = {
 			vim.g.indent_blankline_filetype_exclude = { "help", "terminal", "dashboard", "packer" }
 			vim.g.indent_blankline_buftype_exclude = { "terminal" }
 
+
 			vim.g.indent_blankline_show_trailing_blankline_indent = false
 			vim.g.indent_blankline_show_first_indent_level = false
 			vim.g.indent_blankline_char_highlight_list = {
+        "SpecialComment",
 				"Method",
+        "Type",
 				"Function",
 				"Conditional",
-				"Special",
-				"Underlined",
+				"String",
+				"Debug",
 			}
+
+   --    vim.cmd [[highlight IndentBlanklineIndent1 guifg=#E06C75 gui=nocombine]]
+   --    vim.cmd [[highlight IndentBlanklineIndent2 guifg=#E5C07B gui=nocombine]]
+   --    vim.cmd [[highlight IndentBlanklineIndent3 guifg=#98C379 gui=nocombine]]
+   --    vim.cmd [[highlight IndentBlanklineIndent4 guifg=#56B6C2 gui=nocombine]]
+   --    vim.cmd [[highlight IndentBlanklineIndent5 guifg=#61AFEF gui=nocombine]]
+   --    vim.cmd [[highlight IndentBlanklineIndent6 guifg=#C678DD gui=nocombine]]
+			-- vim.g.indent_blankline_char_highlight_list = {
+   --      "IndentBlanklineIndent1",
+   --      "IndentBlanklineIndent2",
+   --      "IndentBlanklineIndent3",
+   --      "IndentBlanklineIndent4",
+   --      "IndentBlanklineIndent5",
+   --      "IndentBlanklineIndent6",
+			-- }
 		end,
 	},
 
@@ -834,6 +852,8 @@ lvim.plugins = {
 		"andrejlevkovitch/vim-lua-format",
 	},
 }
+-- Global variables
+
 -- vim.api.nvim_command('highlight LightBulbFloatWin ctermfg= ctermbg= guifg= guibg=')
 -- vim.api.nvim_command('highlight LightBulbVirtualText ctermfg= ctermbg= guifg= guibg=')
 ------------
@@ -939,6 +959,16 @@ lvim.keys.normal_mode = {
 	["<leader>8"] = ":BufferGoto 8<CR>",
 
 	["<leader>ml"] = ":MarksListBuf<CR>",
+  ["<leader>m,"] = "<Plug>(Marks-setnext)",
+  ["<leader>m;"] = "<Plug>(Marks-toggle)",
+  ["<leader>dm<space>"] = "<Plug>(Marks-deletebuf)",
+  ["<leader>m:"] = "<Plug>(Marks-preview)",
+  ["<leader>m]"] = "<Plug>(Marks-next)",
+  ["<leader>m["] = "<Plug>(Marks-prev)",
+  ["<leader>m[0-9]"] = "<Plug>(Marks-set-bookmark[0-9])",
+  ["<leader>dm[0-9]"] = "<Plug>(Marks-delete-bookmark[0-9])",
+  ["<leader>m}"] = "<Plug>(Marks-next-bookmark[0-9])",
+  ["<leader>m{"] = "<Plug>(Marks-pre-bookmark[0-9])",
 	["<leader>gg"] = "<Cmd>lua require('lvim.core.terminal')._exec_toggle('lazygit')<CR>",
 	["<leader>il"] = "<cmd>Vista!!<CR>",
 	["<leader>id"] = "<cmd>SymbolsOutline<CR>",
@@ -949,16 +979,16 @@ lvim.keys.normal_mode = {
 	["ss"] = ":SplitjoinSplit<CR>",
 }
 
-map("n", "<leader>m,", "<Plug>(Marks-setnext)", { noremap = false })
-map("n", "<leader>m;", "<Plug>(Marks-toggle)", { noremap = false })
-map("n", "<leader>dm<space>", "<Plug>(Marks-deletebuf)", { noremap = false })
-map("n", "<leader>m:", "<Plug>(Marks-preview)", { noremap = false })
-map("n", "<leader>m]", "<Plug>(Marks-next)", { noremap = false })
-map("n", "<leader>m[", "<Plug>(Marks-prev)", { noremap = false })
-map("n", "<leader>m[0-9]", "<Plug>(Marks-set-bookmark[0-9])", { noremap = false })
-map("n", "<leader>dm[0-9]", "<Plug>(Marks-delete-bookmark[0-9])", { noremap = false })
-map("n", "<leader>m}", "<Plug>(Marks-next-bookmark[0-9])", { noremap = false })
-map("n", "<leader>m{", "<Plug>(Marks-pre-bookmark[0-9])", { noremap = false })
+-- map("n", "<leader>m,", "<Plug>(Marks-setnext)", { noremap = false })
+-- map("n", "<leader>m;", "<Plug>(Marks-toggle)", { noremap = false })
+-- map("n", "<leader>dm<space>", "<Plug>(Marks-deletebuf)", { noremap = false })
+-- map("n", "<leader>m:", "<Plug>(Marks-preview)", { noremap = false })
+-- map("n", "<leader>m]", "<Plug>(Marks-next)", { noremap = false })
+-- map("n", "<leader>m[", "<Plug>(Marks-prev)", { noremap = false })
+-- map("n", "<leader>m[0-9]", "<Plug>(Marks-set-bookmark[0-9])", { noremap = false })
+-- map("n", "<leader>dm[0-9]", "<Plug>(Marks-delete-bookmark[0-9])", { noremap = false })
+-- map("n", "<leader>m}", "<Plug>(Marks-next-bookmark[0-9])", { noremap = false })
+-- map("n", "<leader>m{", "<Plug>(Marks-pre-bookmark[0-9])", { noremap = false })
 
 -- lvim.keys.visual_mode = {
 	-- ["<leader>lha"] = "<cmd>lua require('lspsaga.codeaction').range_code_action()<CR>",
