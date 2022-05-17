@@ -8,7 +8,6 @@ function map(mode, lhs, rhs, opts)
 	vim.api.nvim_set_keymap(mode, lhs, rhs, options)
 end
 
-
 opt = {}
 
 function split(inputstr, sep)
@@ -39,7 +38,7 @@ lvim.localleader = ";"
 lvim.keys.normal_mode["<C-s>"] = ":w<cr>"
 
 vim.opt.relativenumber = true
-vim.opt.ignorecase = true
+vim.opt.ignorecase = false
 -- TODO: User Config for predefined plugins
 -- After changing plugin config exit and reopen LunarVim, Run :PackerInstall :PackerCompile
 lvim.builtin.alpha.mode = "startify"
@@ -74,6 +73,7 @@ lvim.builtin.treesitter.ensure_installed = {
 	"rust",
 	"java",
 	"yaml",
+	"tsx",
 }
 
 -- Beautify
@@ -414,14 +414,25 @@ lvim.plugins = {
 			vim.g.indent_blankline_show_trailing_blankline_indent = false
 			vim.g.indent_blankline_show_first_indent_level = false
 			vim.g.indent_blankline_char_highlight_list = {
-        "SpecialComment",
+				"Underlined",
 				"Method",
-        "Type",
-				"Function",
+				"Type",
+				"Float",
 				"Conditional",
 				"String",
 				"Debug",
+
+				"Method",
+				"Type",
+				"Float",
+				"Conditional",
+				"String",
+				"Debug",
+				-- "SpecialComment"
 			}
+			vim.g.indent_blankline_show_current_context = true
+			vim.g.indent_blankline_show_current_start = true
+			vim.cmd("highlight IndentBlanklineContextStart guisp=#00FF00 gui=underline")
 		end,
 	},
 
@@ -436,7 +447,8 @@ lvim.plugins = {
 		event = "BufRead",
 		config = function()
 			require("hop").setup()
-			vim.api.nvim_set_keymap("n", "<leader>hc", ":HopChar2<CR>", { silent = true })
+			vim.api.nvim_set_keymap("n", "<leader>hc", ":HopChar1<CR>", { silent = true })
+			-- vim.api.nvim_set_keymap("n", "<leader>hc", ":HopChar2<CR>", { silent = true })
 			vim.api.nvim_set_keymap("n", "<leader>hw", ":HopWord<CR>", { silent = true })
 		end,
 	},
@@ -482,9 +494,9 @@ lvim.plugins = {
 			"toml",
 		},
 	},
-{
-  "ap/vim-css-color"
-},
+	{
+		"ap/vim-css-color",
+	},
 	{
 		"dstein64/nvim-scrollview",
 		config = function()
@@ -530,6 +542,23 @@ lvim.plugins = {
 		end,
 	},
 	{
+		"stevearc/aerial.nvim",
+		config = function()
+			require("aerial").setup({
+				filter_kind = {
+					"Class",
+					"Constructor",
+					"Enum",
+					"Function",
+					"Interface",
+					"Module",
+					"Method",
+					"Struct",
+				},
+			})
+		end,
+	},
+	{
 		"liuchengxu/vista.vim",
 	},
 	{
@@ -537,7 +566,7 @@ lvim.plugins = {
 		config = function()
 			vim.g.symbols_outline = {
 				auto_preview = false,
-        width = 18
+				width = 18,
 			}
 		end,
 	},
@@ -728,7 +757,7 @@ lvim.plugins = {
 		"max397574/better-escape.nvim",
 		config = function()
 			require("better_escape").setup()
-      vim.g.better_escape_interval = 0
+			vim.g.better_escape_interval = 0
 		end,
 	},
 	{
@@ -853,6 +882,7 @@ lvim.keys.normal_mode["<leader>pi"] = false
 lvim.keys.normal_mode["<leader>pc"] = false
 lvim.keys.normal_mode["<leader>q"] = false
 
+
 lvim.builtin.which_key.mappings["t"] = {
 	name = "+Trouble",
 	r = { "<cmd>Trouble lsp_references<cr>", "References" },
@@ -943,19 +973,20 @@ lvim.keys.normal_mode = {
 	["<leader>8"] = ":BufferGoto 8<CR>",
 
 	["<leader>ml"] = ":MarksListBuf<CR>",
-  ["<leader>m,"] = "<Plug>(Marks-setnext)",
-  ["<leader>m;"] = "<Plug>(Marks-toggle)",
-  ["<leader>dm<space>"] = "<Plug>(Marks-deletebuf)",
-  ["<leader>m:"] = "<Plug>(Marks-preview)",
-  ["<leader>m]"] = "<Plug>(Marks-next)",
-  ["<leader>m["] = "<Plug>(Marks-prev)",
-  ["<leader>m[0-9]"] = "<Plug>(Marks-set-bookmark[0-9])",
-  ["<leader>dm[0-9]"] = "<Plug>(Marks-delete-bookmark[0-9])",
-  ["<leader>m}"] = "<Plug>(Marks-next-bookmark[0-9])",
-  ["<leader>m{"] = "<Plug>(Marks-pre-bookmark[0-9])",
+	["<leader>m,"] = "<Plug>(Marks-setnext)",
+	["<leader>m;"] = "<Plug>(Marks-toggle)",
+	["<leader>dm<space>"] = "<Plug>(Marks-deletebuf)",
+	["<leader>m:"] = "<Plug>(Marks-preview)",
+	["<leader>m]"] = "<Plug>(Marks-next)",
+	["<leader>m["] = "<Plug>(Marks-prev)",
+	["<leader>m[0-9]"] = "<Plug>(Marks-set-bookmark[0-9])",
+	["<leader>dm[0-9]"] = "<Plug>(Marks-delete-bookmark[0-9])",
+	["<leader>m}"] = "<Plug>(Marks-next-bookmark[0-9])",
+	["<leader>m{"] = "<Plug>(Marks-pre-bookmark[0-9])",
 	["<leader>gg"] = "<Cmd>lua require('lvim.core.terminal')._exec_toggle('lazygit')<CR>",
 	["<leader>il"] = "<cmd>Vista!!<CR>",
 	["<leader>id"] = "<cmd>SymbolsOutline<CR>",
+  ["<leader>ia"] = "<cmd>AerialToggle!<CR>",
 
 	["<leader>rf"] = "<cmd>RnvimrToggle<CR>",
 
@@ -964,7 +995,7 @@ lvim.keys.normal_mode = {
 }
 
 -- lvim.keys.visual_mode = {
-	-- ["<leader>lha"] = "<cmd>lua require('lspsaga.codeaction').range_code_action()<CR>",
+-- ["<leader>lha"] = "<cmd>lua require('lspsaga.codeaction').range_code_action()<CR>",
 -- }
 
 lvim.keys.insert_mode = {
@@ -973,7 +1004,7 @@ lvim.keys.insert_mode = {
 	["<C-e>"] = "<C-c>A",
 	["<C-o>"] = "<C-c>A<Left>",
 	["<C-l>"] = "<C-c>o",
-	["<M-b>"] = "<C-c>F{a"
+	["<M-b>"] = "<C-c>F{a",
 }
 
 lvim.keys.normal_mode["<Esc>"] = ":nohlsearch<cr>"
