@@ -236,10 +236,10 @@ formatters.setup({
 		exe = "clang_format",
 		filetypes = { "c", "cpp" },
 	},
-	{
-		exe = "prettierd",
-		filetypes = { "javascript", "javascriptreact", "typescript", "typescriptreact", "json" },
-	},
+	-- {
+	-- 	exe = "prettierd",
+	-- 	filetypes = { "javascript", "javascriptreact", "typescript", "typescriptreact", "json" },
+	-- },
 	{
 		exe = "black",
 		filetypes = { "python" },
@@ -855,6 +855,15 @@ lvim.plugins = {
 					ts_utils.setup_client(client)
 					local opts = { silent = true }
 					vim.api.nvim_buf_set_keymap(bufnr, "n", "<leader>lr", ":TSLspRenameFile<CR>", opts)
+
+					local null_ls = require("null-ls")
+					null_ls.setup({
+						sources = {
+							null_ls.builtins.diagnostics.eslint, -- eslint or eslint_d
+							null_ls.builtins.code_actions.eslint, -- eslint or eslint_d
+							null_ls.builtins.formatting.prettierd, -- prettier, eslint, eslint_d, or prettierd
+						},
+					})
 				end,
 			})
 		end,
@@ -881,7 +890,6 @@ lvim.keys.normal_mode["<leader>pd"] = false
 lvim.keys.normal_mode["<leader>pi"] = false
 lvim.keys.normal_mode["<leader>pc"] = false
 lvim.keys.normal_mode["<leader>q"] = false
-
 
 lvim.builtin.which_key.mappings["t"] = {
 	name = "+Trouble",
@@ -986,7 +994,7 @@ lvim.keys.normal_mode = {
 	["<leader>gg"] = "<Cmd>lua require('lvim.core.terminal')._exec_toggle('lazygit')<CR>",
 	["<leader>il"] = "<cmd>Vista!!<CR>",
 	["<leader>id"] = "<cmd>SymbolsOutline<CR>",
-  ["<leader>ia"] = "<cmd>AerialToggle!<CR>",
+	["<leader>ia"] = "<cmd>AerialToggle!<CR>",
 
 	["<leader>rf"] = "<cmd>RnvimrToggle<CR>",
 
@@ -1077,6 +1085,7 @@ lvim.autocommands.custom_groups = {
 	{ "WinLeave", "*", "hi CursorLine guibg=None gui=None,underline" },
 
 	{ "BufRead", "*.jsx", "set filetype=javascript" },
+	{ "BufWritePre", "*.js,*.jsx,*.ts,*.tsx", "lua vim.lsp.buf.formatting_sync()" },
 }
 
 -- map("n", miscMap.copywhole_file, ":%y+<CR>", opt)
