@@ -232,10 +232,10 @@ require("lspconfig")["eslint"].setup({
 
 local formatters = require("lvim.lsp.null-ls.formatters")
 formatters.setup({
-	{
-		exe = "clang_format",
-		filetypes = { "c", "cpp" },
-	},
+	-- {
+	-- 	exe = "clang_format",
+	-- 	filetypes = { "c", "cpp" },
+	-- },
 	{
 		exe = "prettierd",
 		filetypes = { "javascript", "javascriptreact", "typescript", "typescriptreact", "json" },
@@ -466,6 +466,19 @@ lvim.plugins = {
 		"folke/trouble.nvim",
 		requires = "kyazdani42/nvim-web-devicons",
 		config = function()
+      local actions = require("telescope.actions")
+      local trouble = require("trouble.providers.telescope")
+
+      local telescope = require("telescope")
+
+      telescope.setup {
+        defaults = {
+          mappings = {
+            i = { ["<c-t>"] = trouble.open_with_trouble },
+            n = { ["<c-t>"] = trouble.open_with_trouble },
+          },
+        },
+      }
 			require("trouble").setup({})
 		end,
 	},
@@ -554,7 +567,16 @@ lvim.plugins = {
 					"Module",
 					"Method",
 					"Struct",
+          "Variable",
+          "Namespace",
+          "TypeParameter",
+          "Package",
+          "Constant",
+          "Object"
 				},
+        backends = {
+          js = {"lsp"},
+        }
 			})
 		end,
 	},
