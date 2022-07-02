@@ -482,6 +482,15 @@ lvim.plugins = {
 			require("trouble").setup({})
 		end,
 	},
+
+{
+  "nvim-telescope/telescope-live-grep-args.nvim",
+  after="trouble.nvim",
+  config = function()
+    require("telescope").load_extension("live_grep_args")
+  end
+},
+
 	{
 		"junegunn/Limelight.vim",
 		cmd = "Limelight",
@@ -945,6 +954,7 @@ lvim.builtin.which_key.mappings["f"] = {
 	t = { "<Cmd>Telescope current_buffer_fuzzy_find<CR>", "Current buffer fuzzy find" },
 	f = { "<Cmd>Telescope find_files<CR>", "Find files" },
 	g = { "<Cmd>Telescope live_grep<CR>", "Live grep" },
+	a = { "<Cmd>Telescope live_grep_args<CR>", "Live grep args" },
 }
 
 lvim.builtin.which_key.mappings["s"] = {
