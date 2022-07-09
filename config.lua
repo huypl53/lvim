@@ -576,16 +576,16 @@ lvim.plugins = {
 					"Module",
 					"Method",
 					"Struct",
-          "Variable",
-          "Namespace",
-          "TypeParameter",
-          "Package",
-          "Constant",
-          "Object"
+					"Variable",
+					"Namespace",
+					"TypeParameter",
+					"Package",
+					"Constant",
+					"Object",
 				},
-        backends = {
-          js = {"lsp"},
-        }
+				backends = {
+					js = { "lsp" },
+				},
 			})
 		end,
 	},
