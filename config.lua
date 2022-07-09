@@ -483,13 +483,13 @@ lvim.plugins = {
 		end,
 	},
 
-{
-  "nvim-telescope/telescope-live-grep-args.nvim",
-  after="trouble.nvim",
-  config = function()
-    require("telescope").load_extension("live_grep_args")
-  end
-},
+	{
+		"nvim-telescope/telescope-live-grep-args.nvim",
+		after = "trouble.nvim",
+		config = function()
+			require("telescope").load_extension("live_grep_args")
+		end,
+	},
 
 	{
 		"junegunn/Limelight.vim",
