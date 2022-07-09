@@ -1099,6 +1099,39 @@ map("n", "<C-e>f", ":WinResizerStartFocus<CR>")
 
 --     cmd "hi Visual guibg=#336600 gui=bold"
 
+vim.fn.Format_sync_sel_first = function(options, timeout_ms)
+	function format(client)
+		if client == nil then
+			return
+		end
+		local params = vim.lsp.util.make_formatting_params(options)
+		local bufnr = vim.api.nvim_get_current_buf()
+		local result, err = client.request_sync("textDocument/formatting", params, timeout_ms, bufnr)
+		if result and result.result then
+			vim.lsp.util.apply_text_edits(result.result, bufnr, client.offset_encoding)
+		elseif err then
+			vim.notify("vim.lsp.buf.formatting_sync: " .. err, vim.log.levels.WARN)
+		end
+	end
+
+	vim.validate({
+		on_choice = { format, "function", false },
+	})
+	local clients = vim.tbl_values(vim.lsp.buf_get_clients())
+
+	clients = vim.tbl_filter(function(client)
+		return client.supports_method("textDocument/formatting")
+	end, clients)
+
+	table.sort(clients, function(a, b)
+		return a.name < b.name
+	end)
+
+	if #clients > 0 then
+		format(clients[1])
+	end
+end
+
 lvim.autocommands.custom_groups = {
 	{ "VimEnter", "*", "set fdm=indent fdl=1" },
 	{ "VimEnter", "*", "hi SignColumn guibg=none" },
@@ -1116,7 +1149,7 @@ lvim.autocommands.custom_groups = {
 	{ "WinLeave", "*", "hi CursorLine guibg=None gui=None,underline" },
 
 	-- { "BufRead", "*.jsx", "set filetype=javascript" },
-	{ "BufWritePre", "*.js,*.jsx,*.ts,*.tsx", "lua vim.lsp.buf.formatting_sync()" },
+	{ "BufWritePre", "*.js,*.jsx,*.ts,*.tsx", "lua vim.fn.Format_sync_sel_first()" },
 }
 
 -- map("n", miscMap.copywhole_file, ":%y+<CR>", opt)
