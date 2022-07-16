@@ -29,7 +29,7 @@ end
 
 -- general
 lvim.log.level = "warn"
-lvim.format_on_save = true
+lvim.format_on_save = false
 lvim.colorscheme = "onedarker"
 
 lvim.leader = "space"
